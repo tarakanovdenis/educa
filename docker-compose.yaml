@@ -7,3 +7,25 @@ services:
       - .:/app
     ports:
       - "8000:8000"
+    networks:
+      - test
+    depends_on:
+      - cache
+  cache:
+    image: memcached
+    container_name: memcached
+    ports:
+      - "11211:11211"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 64M
+    networks:
+      - test
+networks:
+  test:
+    driver: bridge
+    name: test
+
+            
