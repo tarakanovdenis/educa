@@ -6,7 +6,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 COPY requirements.txt /app
-RUN apt-get update
-RUN apt-get install nano
+
+RUN apt-get update -y
+RUN apt-get install -y nano
+RUN apt-get install -y iputils-ping
 RUN pip install -r requirements.txt
+
 COPY . /app
