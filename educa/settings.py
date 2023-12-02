@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'students.apps.StudentsConfig',
     'embed_video',
     'debug_toolbar',
+    'redisboard',
+    'rest_framework',
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,7 +54,9 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -135,13 +139,32 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+#         # 'LOCATION': '172.19.0.2:11211'
+#         'LOCATION': 'memcached',
+#     }
+# }
+
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-        'LOCATION': '172.19.0.2:11211'
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        'LOCATION': 'redis://redis',
     }
 }
 
 INTERNAL_IPS = [
-    '127.0.0.1'
+    # '127.0.0.1',
+    '172.20.0.1',
 ]
+
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 60 * 15 # 15 minutes
+CACHE_MIDDLEWARE_KEY_PREFIX = 'educa'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
