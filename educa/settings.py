@@ -39,6 +39,11 @@ INSTALLED_APPS = [
     'students.apps.StudentsConfig',
     'embed_video',
     'debug_toolbar',
+    'redisboard',
+    'rest_framework',
+    'chat',
+    'channels',
+    'daphne',
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -62,6 +67,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'educa.urls'
+
+ASGI_APPLICATION = 'educa.asgi.application'
 
 TEMPLATES = [
     {
@@ -137,10 +144,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+#         # 'LOCATION': '172.19.0.2:11211'
+#         'LOCATION': 'memcached',
+#     }
+# }
+
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-        'LOCATION': '172.19.0.2:11211'
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        'LOCATION': 'redis://redis',
     }
 }
 
@@ -151,10 +166,16 @@ CACHES = {
 # }
 
 INTERNAL_IPS = [
-    '127.0.0.1',
-    '172.19.0.1',
+    # '127.0.0.1',
+    # '172.20.0.1',
 ]
 
 CACHE_MIDDLEWARE_ALIAS = 'default'
-CACHE_MEDDLIEWARE_SECONDS = 60 * 15 # 15 minutes
+CACHE_MIDDLEWARE_SECONDS = 60 * 15 # 15 minutes
 CACHE_MIDDLEWARE_KEY_PREFIX = 'educa'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}

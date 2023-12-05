@@ -10,22 +10,28 @@ services:
     networks:
       - test
     depends_on:
-      - cache
-  cache:
-    image: memcached
-    container_name: memcached
+      - cache_memcached
+      - cache_redis
+  cache_memcached:
+   image: memcached
+   container_name: memcached
+   ports:
+     - "11211:11211"
+   deploy:
+     resources:
+       limits:
+         cpus: '0.50'
+         memory: 64M
+   networks:
+     - test
+  cache_redis:   
+    image: redis
+    container_name: redis
     ports:
-      - "11211:11211"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 64M
+      - "6379:6379"
     networks:
       - test
 networks:
   test:
     driver: bridge
     name: test
-
-            

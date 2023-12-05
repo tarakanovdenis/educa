@@ -32,6 +32,8 @@ class CourseListView(TemplateResponseMixin, View):
     model = Course
     template_name = 'courses/course/list.html'
     def get(self, request, subject=None):
+        # with open('ip_data.txt', 'w') as f:
+        #     print("IP Address for debug-toolbar: " + request.META['REMOTE_ADDR'], file=f)
         subjects = cache.get('all_subjects')
         if not subjects:
             subjects = Subject.objects.annotate(total_courses=Count('courses'))
@@ -45,7 +47,7 @@ class CourseListView(TemplateResponseMixin, View):
                 courses = all_courses.filter(subject=subject)
                 cache.set(key, courses)
         else:
-            courses = cache.get('all_courses')
+            courses = cache.get('all_course')
             if not courses:
                 courses = all_courses
                 cache.set('all_courses', courses)
