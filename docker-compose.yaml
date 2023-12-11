@@ -1,34 +1,76 @@
 services:
+
   web:
     build: .
     container_name: educa-web
-    command: python manage.py runserver 0.0.0.0:8000
+    command: ["uwsgi", "--ini", "config/uwsgi/uwsgi.ini"]
+    restart: always
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+    # ports:
+    #   - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=educa.settings.prod
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     networks:
       - test
     depends_on:
-      - cache_memcached
+      - db
       - cache_redis
-  cache_memcached:
-   image: memcached
-   container_name: memcached
-   ports:
-     - "11211:11211"
-   deploy:
-     resources:
-       limits:
-         cpus: '0.50'
-         memory: 64M
-   networks:
-     - test
+  daphne:
+    build: .
+    working_dir: /app
+    command: ["daphne", "-u", "/app/educa/daphne.sock",
+              "educa.asgi:application"]
+    restart: always
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=educa.settings.prod
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
+      - cache_redis
+    networks:
+      - test
+  db:
+    container_name: postgres
+    image: postgres
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - test
   cache_redis:   
     image: redis
     container_name: redis
+    restart: always
+    volumes:
+      - ./data/cache:/data
     ports:
       - "6379:6379"
+    networks:
+      - test
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./config/nginx:/etc/nginx/templates
+      - .:/app
+    ports:
+      - "81:80"
+      - "443:443"
     networks:
       - test
 networks:
